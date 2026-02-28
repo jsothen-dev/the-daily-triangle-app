@@ -51,33 +51,32 @@ function extractAttr(xml: string, tag: string, attr: string): string | null {
 
 async function fetchYouTubeChannel(channelId: string, channelName: string): Promise<MediaItem[]> {
   try {
+    const apiKey = process.env.YOUTUBE_API_KEY
+    if (!apiKey) {
+      console.error('YOUTUBE_API_KEY is not set')
+      return []
+    }
+
     const res = await fetch(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
-      {
-        next: { revalidate: 1800 },
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        },
-      }
+      `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&order=date&type=video&part=snippet&maxResults=10&key=${apiKey}`,
+      { next: { revalidate: 1800 } }
     )
     if (!res.ok) return []
 
-    const xml = await res.text()
-    const entries = xml.split('<entry>').slice(1)
+    const data = await res.json()
 
-    return entries.slice(0, 10).map((entry, i) => {
-      const videoId = extractTag(entry, 'yt:videoId') ?? ''
-      const title = extractTag(entry, 'title') ?? 'Untitled'
-      const published = extractTag(entry, 'published') ?? ''
+    return (data.items ?? []).map((item: { id: { videoId: string }, snippet: { title: string, publishedAt: string, thumbnails: { high?: { url: string }, default?: { url: string } } } }) => {
+      const videoId = item.id.videoId
+      const snippet = item.snippet
 
       return {
-        id: `yt-${channelId}-${videoId || i}`,
-        title,
-        thumbnailUrl: videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null,
-        publishedAt: published ? new Date(published) : new Date(0),
+        id: `yt-${channelId}-${videoId}`,
+        title: snippet.title,
+        thumbnailUrl: snippet.thumbnails?.high?.url ?? snippet.thumbnails?.default?.url ?? null,
+        publishedAt: new Date(snippet.publishedAt),
         url: `https://www.youtube.com/watch?v=${videoId}`,
         channelName,
-        type: 'video',
+        type: 'video' as const,
       }
     })
   } catch {
