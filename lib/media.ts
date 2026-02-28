@@ -71,7 +71,7 @@ async function fetchYouTubeChannel(channelId: string, channelName: string): Prom
 
       return {
         id: `yt-${channelId}-${videoId}`,
-        title: snippet.title,
+        title: decodeXmlEntities(snippet.title),
         thumbnailUrl: snippet.thumbnails?.high?.url ?? snippet.thumbnails?.default?.url ?? null,
         publishedAt: new Date(snippet.publishedAt),
         url: `https://www.youtube.com/watch?v=${videoId}`,
