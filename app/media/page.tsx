@@ -7,7 +7,6 @@ export const revalidate = 1800
 const CHANNEL_STYLES: Record<string, string> = {
   'Chewjitsu Podcast': 'bg-orange-700 text-orange-100',
   'Grappling Rewind':  'bg-purple-700 text-purple-100',
-  'MMA JiuJitsu':      'bg-red-700 text-red-100',
   'Inside Position':   'bg-teal-700 text-teal-100',
 }
 

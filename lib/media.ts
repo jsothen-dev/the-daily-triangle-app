@@ -11,7 +11,6 @@ export type MediaItem = {
 const YOUTUBE_CHANNELS = [
   { id: 'UCTSmtpFVLcZGS7G599_vCow', name: 'Chewjitsu Podcast' },
   { id: 'UCJlx0zzA6LloWQtpTjD3VeA', name: 'Grappling Rewind' },
-  { id: 'UCJYTZaCTcsQ_Hzj1R5SH5lg', name: 'MMA JiuJitsu' },
 ]
 
 const PODCAST_FEEDS = [
