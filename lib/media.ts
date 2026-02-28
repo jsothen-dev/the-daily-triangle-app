@@ -53,7 +53,12 @@ async function fetchYouTubeChannel(channelId: string, channelName: string): Prom
   try {
     const res = await fetch(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
-      { next: { revalidate: 1800 } }
+      {
+        next: { revalidate: 1800 },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+      }
     )
     if (!res.ok) return []
 
