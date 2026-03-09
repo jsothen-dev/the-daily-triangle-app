@@ -14,46 +14,13 @@ type WPPost = {
 }
 
 
-// Category 20238 = News. Fetch extra to account for Portuguese articles being filtered out.
-const NEWS_CATEGORY_ID = 20238
+// Category 20238 = English "News", 12554 = Portuguese "Notícias" (separate categories)
+const EN_CATEGORY_ID = 20238
+const PT_CATEGORY_ID = 12554
 
-// Portuguese category names (assigned by editors to Portuguese-language posts)
-const PORTUGUESE_CATEGORIES = new Set(['Notícias', 'noticias'])
-
-// Portuguese words/phrases highly unlikely to appear in English BJJ article titles.
-// Trailing spaces on some keywords prevent substring matches with English words
-// (e.g. "celebra " avoids matching "celebrates").
-const PORTUGUESE_TITLE_KEYWORDS = [
-  'treinar', 'defesa pessoal', 'estreia', 'celebra ', 'chegada',
-  'comenta', 'apresenta', 'choro', 'grande mestre', ' ao ',
-  'segundo ', 'de ensinar', 'de treinar', 'faixa-preta',
-]
-
-function isPortuguese(post: WPPost): boolean {
-  // 1. Editor-assigned Portuguese category
-  const categoryNames = post._embedded?.['wp:term']?.[0]?.map((c) => c.name) ?? []
-  if (categoryNames.some((name) => PORTUGUESE_CATEGORIES.has(name))) return true
-
-  const title = stripHtml(post.title.rendered)
-  const excerpt = stripHtml(post.excerpt.rendered)
-
-  // 2. Diacritics in the title are a near-certain signal (English titles from this
-  //    site never have them, even for Brazilian author names)
-  if (/[ãõâêôçáéúàí]/.test(title)) return true
-
-  // 3. ã or õ anywhere in the excerpt (exclusively Portuguese characters)
-  if (/[ãõ]/.test(excerpt)) return true
-
-  // 4. Distinctive Portuguese words in the title
-  const titleLower = title.toLowerCase()
-  if (PORTUGUESE_TITLE_KEYWORDS.some((kw) => titleLower.includes(kw))) return true
-
-  return false
-}
-
-async function fetchGracieMagPosts(): Promise<WPPost[]> {
+async function fetchGracieMagPosts(categoryId: number): Promise<WPPost[]> {
   const response = await fetch(
-    `https://www.graciemag.com/wp-json/wp/v2/posts?categories=${NEWS_CATEGORY_ID}&per_page=40&_embed`,
+    `https://www.graciemag.com/wp-json/wp/v2/posts?categories=${categoryId}&per_page=20&_embed`,
     { next: { revalidate: 1800 } }
   )
   if (!response.ok) {
@@ -81,8 +48,8 @@ function mapPost(post: WPPost): Article {
 
 export async function fetchGracieMag(): Promise<Article[]> {
   try {
-    const posts = await fetchGracieMagPosts()
-    return posts.filter((post) => !isPortuguese(post)).slice(0, 20).map(mapPost)
+    const posts = await fetchGracieMagPosts(EN_CATEGORY_ID)
+    return posts.map(mapPost)
   } catch (error) {
     console.error('Error fetching Gracie Mag API:', error)
     return []
@@ -91,8 +58,8 @@ export async function fetchGracieMag(): Promise<Article[]> {
 
 export async function fetchGracieMagPt(): Promise<Article[]> {
   try {
-    const posts = await fetchGracieMagPosts()
-    return posts.filter((post) => isPortuguese(post)).slice(0, 20).map(mapPost)
+    const posts = await fetchGracieMagPosts(PT_CATEGORY_ID)
+    return posts.map(mapPost)
   } catch (error) {
     console.error('Error fetching Gracie Mag PT API:', error)
     return []
