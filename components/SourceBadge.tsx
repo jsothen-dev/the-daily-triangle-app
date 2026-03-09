@@ -5,6 +5,7 @@ const SOURCE_LABELS: Record<ArticleSource, string> = {
   flograppling: 'FloGrappling',
   jitsmagazine: 'Jits Magazine',
   graciemag: 'Gracie Mag',
+  vfcomunica: 'VF Comunica',
 }
 
 const SOURCE_STYLES: Record<ArticleSource, string> = {
@@ -12,6 +13,7 @@ const SOURCE_STYLES: Record<ArticleSource, string> = {
   flograppling: 'bg-blue-900 text-blue-200',
   jitsmagazine: 'bg-emerald-700 text-emerald-100',
   graciemag: 'bg-red-800 text-red-100',
+  vfcomunica: 'bg-green-800 text-green-100',
 }
 
 export default function SourceBadge({ source }: { source: ArticleSource }) {

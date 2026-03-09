@@ -1,4 +1,4 @@
-export type ArticleSource = 'bjjee' | 'flograppling' | 'jitsmagazine' | 'graciemag'
+export type ArticleSource = 'bjjee' | 'flograppling' | 'jitsmagazine' | 'graciemag' | 'vfcomunica'
 
 export type Article = {
   id: string

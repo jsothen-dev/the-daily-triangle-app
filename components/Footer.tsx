@@ -7,6 +7,20 @@ const NEWS_SOURCES = [
   { label: 'FloGrappling.com', href: 'https://www.flograppling.com/articles' },
   { label: 'JitsMagazine.com', href: 'https://jitsmagazine.com/category/bjj-news/' },
   { label: 'GracieMag.com', href: 'https://www.graciemag.com' },
+  { label: 'VF Comunica', href: 'https://vfcomunica.com/en/' },
+]
+
+const PT_NEWS_SOURCES = [
+  { label: 'VF Comunica', href: 'https://vfcomunica.com' },
+  { label: 'GracieMag.com', href: 'https://www.graciemag.com' },
+  { label: 'FloGrappling.com', href: 'https://www.flograppling.com/articles' },
+]
+
+const PT_VIDEO_SOURCES = [
+  { label: 'Viktor Doria', href: 'https://www.youtube.com/@viktordoria2064/videos' },
+  { label: 'A Hora do Jiu Jitsu', href: 'https://www.youtube.com/playlist?list=PLYY_176MZdPytoago-O5uFzpQXHYXup6l' },
+  { label: 'Connect Cast', href: 'https://www.youtube.com/@PodcastConnectCast/videos' },
+  { label: 'VF Comunica', href: 'https://www.youtube.com/@VFComunica/videos' },
 ]
 
 const MEDIA_SOURCES = [
@@ -18,7 +32,14 @@ const MEDIA_SOURCES = [
 export default function Footer() {
   const pathname = usePathname()
   const year = new Date().getFullYear()
-  const sources = pathname.startsWith('/media') ? MEDIA_SOURCES : NEWS_SOURCES
+  const isPt = pathname.startsWith('/pt')
+  const sources = pathname.startsWith('/media')
+    ? MEDIA_SOURCES
+    : pathname === '/pt/videos'
+      ? PT_VIDEO_SOURCES
+      : isPt
+        ? PT_NEWS_SOURCES
+        : NEWS_SOURCES
 
   return (
     <footer className="bg-gray-950 border-t border-gray-800 mt-16">
@@ -32,13 +53,15 @@ export default function Footer() {
               </div>
               <span className="text-white font-black text-lg">The Daily Triangle</span>
             </div>
-            <p className="text-gray-400 text-sm">The most relevant BJJ content in one place</p>
+            <p className="text-gray-400 text-sm">
+              {isPt ? 'O melhor do BJJ em um só lugar' : 'The most relevant BJJ content in one place'}
+            </p>
           </div>
 
           {/* Source links */}
           <div className="flex flex-col gap-2">
             <p className="text-gray-500 text-xs uppercase tracking-widest font-semibold mb-1">
-              Content Sources
+              {isPt ? 'Fontes de conteúdo' : 'Content Sources'}
             </p>
             {sources.map(({ label, href }) => (
               <a

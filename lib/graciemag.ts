@@ -51,41 +51,50 @@ function isPortuguese(post: WPPost): boolean {
   return false
 }
 
+async function fetchGracieMagPosts(): Promise<WPPost[]> {
+  const response = await fetch(
+    `https://www.graciemag.com/wp-json/wp/v2/posts?categories=${NEWS_CATEGORY_ID}&per_page=40&_embed`,
+    { next: { revalidate: 1800 } }
+  )
+  if (!response.ok) {
+    console.error(`Gracie Mag API returned status ${response.status}`)
+    return []
+  }
+  return response.json()
+}
+
+function mapPost(post: WPPost): Article {
+  const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null
+  const rawExcerpt = stripHtml(post.excerpt.rendered)
+  const category = post._embedded?.['wp:term']?.[0]?.[0]?.name ?? null
+  return {
+    id: `graciemag-${post.id}`,
+    title: stripHtml(post.title.rendered),
+    excerpt: rawExcerpt.slice(0, 200) + (rawExcerpt.length > 200 ? '…' : ''),
+    url: post.link,
+    imageUrl,
+    publishedAt: new Date(post.date),
+    source: 'graciemag',
+    category,
+  }
+}
+
 export async function fetchGracieMag(): Promise<Article[]> {
   try {
-    const response = await fetch(
-      `https://www.graciemag.com/wp-json/wp/v2/posts?categories=${NEWS_CATEGORY_ID}&per_page=40&_embed`,
-      { next: { revalidate: 1800 } }
-    )
-
-    if (!response.ok) {
-      console.error(`Gracie Mag API returned status ${response.status}`)
-      return []
-    }
-
-    const posts: WPPost[] = await response.json()
-
-    return posts
-      .filter((post) => !isPortuguese(post))
-      .slice(0, 20)
-      .map((post) => {
-        const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null
-        const rawExcerpt = stripHtml(post.excerpt.rendered)
-        const category = post._embedded?.['wp:term']?.[0]?.[0]?.name ?? null
-
-        return {
-          id: `graciemag-${post.id}`,
-          title: stripHtml(post.title.rendered),
-          excerpt: rawExcerpt.slice(0, 200) + (rawExcerpt.length > 200 ? '…' : ''),
-          url: post.link,
-          imageUrl,
-          publishedAt: new Date(post.date),
-          source: 'graciemag',
-          category,
-        }
-      })
+    const posts = await fetchGracieMagPosts()
+    return posts.filter((post) => !isPortuguese(post)).slice(0, 20).map(mapPost)
   } catch (error) {
     console.error('Error fetching Gracie Mag API:', error)
+    return []
+  }
+}
+
+export async function fetchGracieMagPt(): Promise<Article[]> {
+  try {
+    const posts = await fetchGracieMagPosts()
+    return posts.filter((post) => isPortuguese(post)).slice(0, 20).map(mapPost)
+  } catch (error) {
+    console.error('Error fetching Gracie Mag PT API:', error)
     return []
   }
 }
