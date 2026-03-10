@@ -159,7 +159,9 @@ export async function fetchAllPtMedia(): Promise<MediaItem[]> {
   try {
     const results = await Promise.all([
       ...PT_PLAYLIST_IDS.map((id) => fetchPlaylistWithName(id, apiKey)),
-      fetchChannelByHandle(VIKTOR_DORIA_HANDLE, apiKey),
+      fetchChannelByHandle(VIKTOR_DORIA_HANDLE, apiKey).then((items) =>
+        items.filter((item) => !/deus|estudo b[ií]blico/i.test(item.title))
+      ),
       fetchChannelByHandle(CONNECT_CAST_HANDLE, apiKey, 'Connect Cast', true),
       fetchChannelByHandle(VF_COMUNICA_YT_HANDLE, apiKey, 'VF Comunica', true),
     ])
