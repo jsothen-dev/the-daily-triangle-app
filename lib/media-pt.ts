@@ -45,10 +45,17 @@ function mapItems(raw: YTPlaylistItem[], playlistId: string, channelName: string
   })
 }
 
-// Batch-fetches durations and removes videos ≤ 60 seconds (Shorts).
+// Removes Shorts by checking #shorts in the title, then confirms via duration (≤ 180s).
+// YouTube allows Shorts up to 3 minutes, so the title hashtag is the most reliable signal.
 async function stripShorts(items: MediaItem[], apiKey: string): Promise<MediaItem[]> {
-  if (items.length === 0) return []
-  const ids = items
+  // Fast pass: drop anything tagged #shorts in the title
+  const candidates = items.filter(
+    (item) => !item.title.toLowerCase().includes('#shorts')
+  )
+
+  if (candidates.length === 0) return []
+
+  const ids = candidates
     .map((item) => new URL(item.url).searchParams.get('v'))
     .filter(Boolean)
     .join(',')
@@ -57,7 +64,7 @@ async function stripShorts(items: MediaItem[], apiKey: string): Promise<MediaIte
     `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${ids}&key=${apiKey}`,
     { next: { revalidate: 1800 } }
   )
-  if (!res.ok) return items // fallback: keep all if API fails
+  if (!res.ok) return candidates // fallback: keep title-filtered set if API fails
 
   const data = await res.json()
   const durations: Record<string, number> = {}
@@ -65,9 +72,9 @@ async function stripShorts(items: MediaItem[], apiKey: string): Promise<MediaIte
     durations[v.id] = parseDurationSeconds(v.contentDetails.duration)
   }
 
-  return items.filter((item) => {
+  return candidates.filter((item) => {
     const vid = new URL(item.url).searchParams.get('v') ?? ''
-    return (durations[vid] ?? 999) > 60
+    return (durations[vid] ?? 999) > 180
   })
 }
 
