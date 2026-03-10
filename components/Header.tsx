@@ -48,23 +48,23 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href={isPt ? '/pt' : '/'} className="flex items-center gap-3 group">
+          <a href={isPt ? '/pt' : '/'} className="flex items-center gap-3 group min-w-0">
             <div className="w-8 h-8 bg-blue-600 rounded-sm flex items-center justify-center text-white font-black text-sm shrink-0">
               △
             </div>
-            <div>
-              <span className="block text-white font-black text-xl tracking-tight leading-tight group-hover:text-blue-400 transition-colors">
+            <div className="min-w-0">
+              <span className="block text-white font-black text-xl tracking-tight leading-tight group-hover:text-blue-400 transition-colors whitespace-nowrap">
                 The Daily Triangle
               </span>
-              <span className="block text-gray-400 text-xs leading-tight">
+              <span className="hidden sm:block text-gray-400 text-xs leading-tight">
                 {isPt ? 'O melhor do BJJ em um só lugar' : 'The most relevant BJJ content in one place'}
               </span>
             </div>
           </a>
 
           {/* Right side: Nav + Language switcher */}
-          <div className="flex items-center gap-3">
-            <nav className="flex items-center gap-1">
+          <div className="flex items-center gap-2 shrink-0">
+            <nav className="flex items-center gap-0.5">
               {navLinks.map((link) => {
                 const active = link.href === '/pt'
                   ? pathname === '/pt'
@@ -75,7 +75,7 @@ export default function Header() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className={`px-4 py-2 text-sm font-semibold rounded transition-colors ${
+                    className={`px-3 py-2 text-sm font-semibold rounded transition-colors ${
                       active
                         ? 'text-white bg-gray-800'
                         : 'text-gray-400 hover:text-white hover:bg-gray-800'
@@ -88,7 +88,7 @@ export default function Header() {
             </nav>
 
             {/* Language switcher */}
-            <div className="flex items-center gap-1 border-l border-gray-700 pl-3">
+            <div className="flex items-center gap-1 border-l border-gray-700 pl-2">
               <a
                 href="/"
                 title="English"
