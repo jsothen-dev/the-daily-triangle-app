@@ -13,6 +13,10 @@ const YOUTUBE_CHANNELS = [
   { id: 'UCJlx0zzA6LloWQtpTjD3VeA', name: 'Grappling Rewind' },
 ]
 
+const YOUTUBE_HANDLES = [
+  { handle: 'mmajiujitsu', name: 'MMA Jiu Jitsu' },
+]
+
 const PODCAST_FEEDS = [
   { url: 'https://www.insidepositionpodcast.com/feed', name: 'Inside Position' },
 ]
@@ -116,11 +120,31 @@ async function fetchPodcast(feedUrl: string, channelName: string): Promise<Media
   }
 }
 
+async function fetchYouTubeChannelByHandle(handle: string, channelName: string): Promise<MediaItem[]> {
+  try {
+    const apiKey = process.env.YOUTUBE_API_KEY
+    if (!apiKey) return []
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${apiKey}`,
+      { next: { revalidate: 1800 } }
+    )
+    if (!res.ok) return []
+    const data = await res.json()
+    const channelId: string | undefined = data.items?.[0]?.id
+    if (!channelId) return []
+    return fetchYouTubeChannel(channelId, channelName)
+  } catch {
+    console.error(`Error fetching YouTube channel by handle ${handle}`)
+    return []
+  }
+}
+
 // ─── Aggregator ───────────────────────────────────────────────────────────────
 
 export async function fetchAllMedia(): Promise<MediaItem[]> {
   const results = await Promise.all([
     ...YOUTUBE_CHANNELS.map((ch) => fetchYouTubeChannel(ch.id, ch.name)),
+    ...YOUTUBE_HANDLES.map((ch) => fetchYouTubeChannelByHandle(ch.handle, ch.name)),
     ...PODCAST_FEEDS.map((f) => fetchPodcast(f.url, f.name)),
   ])
 

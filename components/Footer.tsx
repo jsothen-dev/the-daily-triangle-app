@@ -26,6 +26,7 @@ const PT_VIDEO_SOURCES = [
 const MEDIA_SOURCES = [
   { label: 'Chewjitsu Podcast', href: 'https://www.youtube.com/@ChewjitsuPodcast' },
   { label: 'Grappling Rewind', href: 'https://www.youtube.com/c/GrapplingRewind' },
+  { label: 'MMA Jiu Jitsu', href: 'https://www.youtube.com/@mmajiujitsu/videos' },
   { label: 'Inside Position Podcast', href: 'https://www.insidepositionpodcast.com' },
 ]
 
