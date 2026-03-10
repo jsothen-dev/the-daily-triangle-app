@@ -52,7 +52,7 @@ export default function Header() {
             <div className="w-8 h-8 bg-blue-600 rounded-sm flex items-center justify-center text-white font-black text-sm shrink-0">
               △
             </div>
-            <div className="min-w-0">
+            <div className="hidden sm:block min-w-0">
               <span className="block text-white font-black text-xl tracking-tight leading-tight group-hover:text-blue-400 transition-colors whitespace-nowrap">
                 The Daily Triangle
               </span>
